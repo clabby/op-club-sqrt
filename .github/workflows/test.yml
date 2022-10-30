@@ -1,6 +1,6 @@
 name: test
 
-on: workflow_dispatch
+on: push
 
 env:
   FOUNDRY_PROFILE: ci
@@ -31,5 +31,5 @@ jobs:
         id: build
       - name: Run Forge tests
         run: |
-          WORKFLOW=true forge test -vvv
+          LOCAL=false forge test -vvv
         id: test

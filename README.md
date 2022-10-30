@@ -31,5 +31,5 @@ This solution is written in [Huff](https://github.com/huff-language), so you wil
 To test locally:
 
 ```bash
-$ forge test
+$ LOCAL=true forge test
 ```

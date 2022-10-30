@@ -35,13 +35,13 @@ contract MySolutionTest is Test {
         testWithSeed(SEED);
     }
 
-    function testFuzzSeed(uint256 seed) public {
-        testWithSeed(seed);
-    }
+    // function testFuzzSeed(uint256 seed) public {
+    //     testWithSeed(seed);
+    // }
 
     function testEndToEnd() public {
         // Don't run this test in the workflow
-        if (vm.envBool("WORKFLOW")) return;
+        if (!vm.envBool("LOCAL")) return;
 
         // Commit our solution
         OPTIMIZOR_MAINNET.commit(computeKey(MY_ADDRESS, address(sqrt).codehash, SALT));
