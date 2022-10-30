@@ -40,6 +40,9 @@ contract MySolutionTest is Test {
     }
 
     function testEndToEnd() public {
+        // Don't run this test in the workflow
+        if (vm.envBool("WORKFLOW")) return;
+
         // Commit our solution
         OPTIMIZOR_MAINNET.commit(computeKey(MY_ADDRESS, address(sqrt).codehash, SALT));
 
