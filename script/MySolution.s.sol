@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
+import { ISqrt } from "src/SqrtChallenge.sol";
+import { IOptimizor, OPTIMIZOR_MAINNET } from "src/IOptimizor.sol";
+import { computeKey } from "src/CommitHash.sol";
 
-import {MySolution} from "src/MySolution.sol";
-import {IOptimizor, OPTIMIZOR_MAINNET} from "src/IOptimizor.sol";
-import {computeKey} from "src/CommitHash.sol";
-
-uint constant SQRT_ID = 1;
 // Change accordingly.
-address constant MY_ADDRESS = address(0);
+uint256 constant SQRT_ID = 1;
 // Change accordingly.
-uint constant SALT = 0;
+address constant SUBMITTER = address(0);
+// Change accordingly.
+address constant RECEIVER = address(0);
+// Change accordingly.
+uint256 constant SALT = 0;
 // Deploy solution contract.
 address constant DEPLOYED_SOLUTION = address(0);
 
@@ -19,11 +21,21 @@ contract MySolutionDeployAndCommit is Script {
     function run() public {
         vm.startBroadcast();
 
+        // Compile Solution contract
+        string[] memory cmds = new string[](3);
+        cmds[0] = "huffc";
+        cmds[1] = string("src/Solution.huff");
+        cmds[2] = "-b";
+        bytes memory code = vm.ffi(cmds);
+
         // Deploy solution contract.
-        MySolution sqrt = new MySolution();
+        address sqrt;
+        assembly {
+            sqrt := create(0, add(code, 0x20), code)
+        }
 
         // Commit solution key.
-        OPTIMIZOR_MAINNET.commit(computeKey(MY_ADDRESS, address(sqrt).codehash, SALT));
+        OPTIMIZOR_MAINNET.commit(computeKey(SUBMITTER, address(sqrt).codehash, SALT));
 
         vm.stopBroadcast();
     }
@@ -31,11 +43,9 @@ contract MySolutionDeployAndCommit is Script {
 
 contract MySolutionChallenge is Script {
     function run() public {
-        vm.startBroadcast();
+        vm.broadcast();
 
-        // Make the challenge.
-        OPTIMIZOR_MAINNET.challenge(SQRT_ID, address(DEPLOYED_SOLUTION), MY_ADDRESS, SALT);
-
-        vm.stopBroadcast();
+        // Submit the challenge solution.
+        OPTIMIZOR_MAINNET.challenge(SQRT_ID, address(DEPLOYED_SOLUTION), RECEIVER, SALT);
     }
 }

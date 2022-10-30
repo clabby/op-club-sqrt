@@ -53,4 +53,4 @@ function bit_xor(Fixed18 a, Fixed18 b) pure returns (Fixed18) {
     return Fixed18.wrap(Fixed18.unwrap(a) ^ Fixed18.unwrap(b));
 }
 
-using {add, sub, mul, div, distance, lt, le, gt, bit_and, bit_xor} for Fixed18 global;
+using { add, sub, mul, div, distance, lt, le, gt, bit_and, bit_xor } for Fixed18 global;

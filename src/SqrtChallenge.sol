@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {IChallenge} from "src/IChallenge.sol";
+import { IChallenge } from "src/IChallenge.sol";
 
-import {Fixed18} from "src/Fixed18.sol";
+import { Fixed18 } from "src/Fixed18.sol";
 
 uint256 constant INPUT_SIZE = 5;
 
