@@ -10,15 +10,16 @@
     msize returndatasize return
 }
 
-#define macro DO_THE_THING(ptr) = {
+/// @dev This leaves `x` on the stack, but we can ignore that value
+#define macro DO_THE_THING(ptr) = returns (1) {
     <ptr> calldataload          // [arr[0]]
     BRANCHLESS_SQRT()           // [sqrt(fixed18)]
-    0x3B9ACA00 mul              // [sqrt(fixed18) * 1e9]
-    msize mstore                // []
+    0x3B9ACA00 mul              // [sqrt(fixed18) * 1e9, x]
+    msize mstore                // [x]
 }
 
 /// https://github.com/Vectorized/solady/blob/main/src/utils/FixedPointMathLib.sol#L328
-#define macro BRANCHLESS_SQRT() = takes (1) returns (1) {
+#define macro BRANCHLESS_SQRT() = takes (1) returns (2) {
     // Input stack:                [x]
 
     // `floor(sqrt(2**15)) = 181`. `sqrt(2**15) - 181 = 2.84`.
@@ -37,17 +38,17 @@
 
     dup3 dup2 shr               // [x >> r, r, z, x]
     0xffffffffffffffffff lt     // [(0xff... < (x >> r)), r, z, x]
-    0x06 shl                    // [(0xff... < (x >> r)), r, z, x]
+    0x06 shl                    // [(0xff... < (x >> r)) << 0x06, r, z, x]
     or                          // [r, z, x]
 
     dup3 dup2 shr               // [x >> r, r, z, x]
     0xffffffffff lt             // [(0xff... < (x >> r)), r, z, x]
-    0x05 shl                    // [(0xff... < (x >> r)), r, z, x]
+    0x05 shl                    // [(0xff... < (x >> r)) << 0x05, r, z, x]
     or                          // [r, z, x]
 
     dup3 dup2 shr               // [x >> r, r, z, x]
     0xffffff lt                 // [(0xff... < (x >> r)), r, z, x]
-    0x04 shl                    // [(0xff... < (x >> r)), r, z, x]
+    0x04 shl                    // [(0xff... < (x >> r)) << 0x04, r, z, x]
     or                          // [r, z, x]
 
     dup1 chainid shr            // [r >> 0x01, r, z, x]
@@ -93,16 +94,7 @@
     add                         // [x / z + z, x]
     chainid shr                 // [z, x]
 
-    // If `x+1` is a perfect square, the Babylonian method cycles between
-    // `floor(sqrt(x))` and `ceil(sqrt(x))`. This statement ensures we return floor.
-    // See: https://en.wikipedia.org/wiki/Integer_square_root#Using_only_integer_division
-    // Since the ceil is rare, we save gas on the assignment and repeat division in the rare case.
-    // If you don't care whether the floor or ceil square root is returned, you can remove this statement.
-    dup1 dup1 swap3 div         // [x / z, z, z]
-    lt                          // [x / z < z, z]
-    swap1 sub
-
-    // Return stack:               [result]
+    // Return stack:               [result, x]
 }
 
 // https://github.com/transmissions11/solmate/blob/v7/src/utils/FixedPointMathLib.sol#L288
