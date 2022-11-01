@@ -15,7 +15,7 @@ address constant RECEIVER = address(0x7b36949624eFeA27dD9F0925b25c309A09774784);
 // Change accordingly.
 uint256 constant SALT = 0;
 // Deploy solution contract.
-address constant DEPLOYED_SOLUTION = address(0xbf09fc36972D1B3d565681a2fDe48dfeE7E26982);
+address constant DEPLOYED_SOLUTION = address(0xF3F99Ab03D1371626a86A7ea7C02128349eF62dD);
 
 contract MySolutionDeployAndCommit is Script {
     function run() public {
